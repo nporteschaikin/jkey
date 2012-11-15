@@ -15,7 +15,7 @@
 		40: 'darr'
 	}
 	
-	var keys = [];
+	var down = [], match = [];
 	
 	$.fn.return = function( h ) {
 		return this.keydown( function( e ) { if ( e.which == 13 ) { h.call( this, e ) } } );
@@ -69,16 +69,31 @@
 		return this.bind('keyup keydown',
 			function( e ) {
 				if ( e.type == 'keydown' ){
-					if( $.inArray( e.which, keys ) == -1 ) {
-						keys.push( e.which );
-						press = k.split(' ');
-						for( var i in press ) {
-							
+					if( $.inArray( e.which, down ) == -1 ) {
+						down.push( e.which );
+					}
+					keys = k.split(' ');
+					for( var i in down ) {
+						if( down[i] in map 
+						&& $.inArray( map[down[i]], keys ) > -1 
+						&& $.inArray( map[down[i]], match ) == -1 ){
+							match.push(map[down[i]]);
 						}
 					}
-					$('body').html(keys);
+					if( match.sort().join() == keys.sort().join() ){
+						h.call( this, e );
+					}
 				} else if ( e.type == 'keyup' ) {
-					keys = [];
+					for( var i in down ) {
+						if( e.which == down[i] ) {
+							for( var z in match ){
+								if( match[z] == map[down[i]] ){
+									match.splice(z, 1);
+								}
+							}
+							down.splice(i, 1);
+						}
+					}
 				}
 			} 
 		)
