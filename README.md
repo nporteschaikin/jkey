@@ -1,7 +1,7 @@
 <h1>jKey</h1>
 <p>Simplified key detection, including namespaces for commonly referenced keys and an event for simultaneous key presses. jQuery required.</p>
 <h1>Keys supported</h1>
-<code>
+<code style="display: block">
 	return<br />
 	esc<br />
 	backspace<br />
