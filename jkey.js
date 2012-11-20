@@ -15,7 +15,7 @@
 		40: 'darr'
 	}
 	
-	var down = [], up = [], dMatch = [], uMatch = [];
+	var down = [], up = [], downmatch = [], upmatch = [];
 	
 	$.fn.return = function( h ) {
 		return this.keydown( function( e ) { if ( e.which == 13 ) { h.call( this, e ) } } );
@@ -68,72 +68,65 @@
 	$.fn.multikeydown = function( k, h ) {
 		return this.bind('keyup keydown',
 			function( e ) {
-				if ( e.type == 'keydown' ){
-					if( $.inArray( e.which, down ) == -1 ) {
-						down.push( e.which );
-					}
-					keys = k.split(' ');
-					for( var i in down ) {
-						if( down[i] in map 
-						&& $.inArray( map[down[i]], keys ) > -1 
-						&& $.inArray( map[down[i]], dMatch ) == -1 ){
-							dMatch.push(map[down[i]]);
-						}
-					}
-					if( dMatch.sort().join() == keys.sort().join() ){
-						dMatch = [], down = [];
-						h.call( this, e );
-					}
-				} else if ( e.type == 'keyup' ) {
-					for( var i in down ) {
-						if( e.which == down[i] ) {
-							for( var z in dMatch ){
-								if( dMatch[z] == map[down[i]] ){
-									dMatch.splice(z, 1);
-								}
-							}
-							down.splice(i, 1);
-						}
-					}
-				}
+				multikey( e, 'keydown', k, h );
 			} 
 		)
 	}
 	
 	
 	$.fn.multikeyup = function( k, h ) {
-		return this.bind('keyup keyup',
+		return this.bind('keyup keydown',
 			function( e ) {
-				if ( e.type == 'keyup' ){
-					if( $.inArray( e.which, up ) == -1 ) {
-						up.push( e.which );
-					}
-					keys = k.split(' ');
-					for( var i in up ) {
-						if( up[i] in map 
-						&& $.inArray( map[up[i]], keys ) > -1 
-						&& $.inArray( map[up[i]], uMatch ) == -1 ){
-							uMatch.push(map[up[i]]);
-						}
-					}
-					if( uMatch.sort().join() == keys.sort().join() ){
-						uMatch = [], up = [];
-						h.call( this, e );
-					}
-				} else if ( e.type == 'keyup' ) {
-					for( var i in up ) {
-						if( e.which == up[i] ) {
-							for( var z in uMatch ){
-								if( uMatch[z] == map[up[i]] ){
-									uMatch.splice(z, 1);
-								}
-							}
-							up.splice(i, 1);
-						}
-					}
-				}
+				multikey( e, 'keyup', k, h );
 			} 
 		)
+	}
+	
+	function multikey ( e, t, k, h ) {
+		var move, match;
+		if ( e.type == 'keyup' ) {
+			move = up;
+			match = upmatch;
+		} else {
+			move = down;
+			match = downmatch;
+		}
+		if ( e.type == t ){
+			
+			if( $.inArray( e.which, move ) == -1 ) {
+				move.push( e.which );
+			}
+			keys = k.split(' ');
+			for( var i in move ) {
+				if( move[i] in map 
+				&& $.inArray( map[move[i]], keys ) > -1 
+				&& $.inArray( map[move[i]], match ) == -1 ){
+					match.push( map[move[i]] );
+				}
+			}
+			if( match.sort().join() == keys.sort().join() ){
+				match = [], move = [];
+				h.call( this, e );
+			}
+		} else {
+			for( var i in move ) {
+				if( e.which == move[i] ) {
+					for( var z in match ){
+						if( match[z] == map[move[i]] ){
+							match.splice(z, 1);
+						}
+					}
+					move.splice(i, 1);
+				}
+			}
+		}
+		if ( e.type == 'keyup' ) {
+			up = move;
+			upmatch = match;
+		} else {
+			down = move;
+			downmatch = match;
+		}
 	}
 	
 	
