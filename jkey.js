@@ -15,7 +15,7 @@
 		40: 'darr'
 	}
 	
-	var down = [], match = [];
+	var down = [], up = [], dMatch = [], uMatch = [];
 	
 	$.fn.return = function( h ) {
 		return this.keydown( function( e ) { if ( e.which == 13 ) { h.call( this, e ) } } );
@@ -65,7 +65,7 @@
 		return this.keydown( function( e ) { if ( e.which == 40 ) { h.call( this, e ) } } );
 	};
 	
-	$.fn.multikey = function( k, h ) {
+	$.fn.multikeydown = function( k, h ) {
 		return this.bind('keyup keydown',
 			function( e ) {
 				if ( e.type == 'keydown' ){
@@ -76,22 +76,59 @@
 					for( var i in down ) {
 						if( down[i] in map 
 						&& $.inArray( map[down[i]], keys ) > -1 
-						&& $.inArray( map[down[i]], match ) == -1 ){
-							match.push(map[down[i]]);
+						&& $.inArray( map[down[i]], dMatch ) == -1 ){
+							dMatch.push(map[down[i]]);
 						}
 					}
-					if( match.sort().join() == keys.sort().join() ){
+					if( dMatch.sort().join() == keys.sort().join() ){
+						dMatch = [], down = [];
 						h.call( this, e );
 					}
 				} else if ( e.type == 'keyup' ) {
 					for( var i in down ) {
 						if( e.which == down[i] ) {
-							for( var z in match ){
-								if( match[z] == map[down[i]] ){
-									match.splice(z, 1);
+							for( var z in dMatch ){
+								if( dMatch[z] == map[down[i]] ){
+									dMatch.splice(z, 1);
 								}
 							}
 							down.splice(i, 1);
+						}
+					}
+				}
+			} 
+		)
+	}
+	
+	
+	$.fn.multikeyup = function( k, h ) {
+		return this.bind('keyup keyup',
+			function( e ) {
+				if ( e.type == 'keyup' ){
+					if( $.inArray( e.which, up ) == -1 ) {
+						up.push( e.which );
+					}
+					keys = k.split(' ');
+					for( var i in up ) {
+						if( up[i] in map 
+						&& $.inArray( map[up[i]], keys ) > -1 
+						&& $.inArray( map[up[i]], uMatch ) == -1 ){
+							uMatch.push(map[up[i]]);
+						}
+					}
+					if( uMatch.sort().join() == keys.sort().join() ){
+						uMatch = [], up = [];
+						h.call( this, e );
+					}
+				} else if ( e.type == 'keyup' ) {
+					for( var i in up ) {
+						if( e.which == up[i] ) {
+							for( var z in uMatch ){
+								if( uMatch[z] == map[up[i]] ){
+									uMatch.splice(z, 1);
+								}
+							}
+							up.splice(i, 1);
 						}
 					}
 				}
